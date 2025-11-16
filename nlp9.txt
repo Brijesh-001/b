@@ -1,0 +1,112 @@
+# =====================================================================
+# PROPER TOP-DOWN (RECURSIVE DESCENT) + BOTTOM-UP (SHIFT-REDUCE) PARSING
+# =====================================================================
+
+# Grammar
+grammar = {
+    "S": [["NP", "VP"]],
+    "NP": [["Det", "N"]],
+    "VP": [["V", "NP"]],
+    "Det": [["the"]],
+    "N": [["cat"], ["dog"], ["mouse"]],
+    "V": [["chased"], ["saw"]]
+}
+
+sentence = "the cat chased the mouse".split()
+
+
+# =====================================================================
+# TOP-DOWN PARSING WITH PROPER OUTPUT
+# =====================================================================
+
+step = 1
+print("\n================ TOP-DOWN PARSING STEPS ================\n")
+
+def topdown(rule, words, level=0):
+    global step
+    indent = "  " * level
+    print(f"{indent}Step {step}: Expand → {rule} | Remaining Input → {words}")
+    step += 1
+
+    if not rule:
+        print(f"{indent}✔ Rule finished. Remaining: {words}\n")
+        return words == []
+
+    head = rule[0]
+
+    # Terminal match
+    if head not in grammar:
+        if words and words[0] == head:
+            print(f"{indent}✔ Match terminal '{head}'\n")
+            return topdown(rule[1:], words[1:], level)
+        else:
+            print(f"{indent}✘ Failed to match terminal '{head}'\n")
+            return False
+
+    # Non-terminal expansions
+    for production in grammar[head]:
+        print(f"{indent}Trying {head} → {production}")
+        result = topdown(production + rule[1:], words, level + 1)
+        if result is not False:
+            return result
+
+    print(f"{indent}✘ No production matched for {head}\n")
+    return False
+
+
+# Run Top-Down Parser
+topdown(["S"], sentence)
+
+
+
+# =====================================================================
+# BOTTOM-UP SHIFT-REDUCE PARSING WITH PROPER OUTPUT
+# =====================================================================
+
+print("\n================ BOTTOM-UP SHIFT-REDUCE PARSING ================\n")
+
+grammar_reverse = {
+    "the": "Det",
+    "cat": "N",
+    "dog": "N",
+    "mouse": "N",
+    "chased": "V",
+    "saw": "V",
+    ("Det", "N"): "NP",
+    ("V", "NP"): "VP",
+    ("NP", "VP"): "S"
+}
+
+stack = []
+
+def try_reduce(stack):
+    reduced = True
+    while reduced:
+        reduced = False
+
+        # Unary reduction
+        if stack and stack[-1] in grammar_reverse:
+            print(f"Reduce: {stack[-1]} → {grammar_reverse[stack[-1]]}")
+            stack[-1] = grammar_reverse[stack[-1]]
+            reduced = True
+
+        # Binary reduction
+        if len(stack) >= 2:
+            pair = (stack[-2], stack[-1])
+            if pair in grammar_reverse:
+                print(f"Reduce: {pair} → {grammar_reverse[pair]}")
+                stack[-2:] = [grammar_reverse[pair]]
+                reduced = True
+
+    return stack
+
+
+# Run bottom-up parsing
+for token in sentence:
+    print(f"\nShift: '{token}'")
+    stack.append(token)
+    print("Stack:", stack)
+    stack = try_reduce(stack)
+    print("Stack after reduce:", stack)
+
+print("\nFinal Stack:", stack)

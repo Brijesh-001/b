@@ -1,0 +1,80 @@
+# -----------------------------------------------------------
+# TOKENIZATION, STEMMING, LEMMATIZATION WITHOUT ANY LIBRARY
+# -----------------------------------------------------------
+
+# Sample text
+text = "The teachers were teaching the students who were learning quickly."
+
+# -----------------------------------------------------------
+# TOKENIZATION (manual, no regex)
+# -----------------------------------------------------------
+
+# Remove punctuation manually
+clean = ""
+for ch in text:
+    if ch.isalpha() or ch.isspace():
+        clean += ch
+
+clean = clean.lower()
+tokens = clean.split()
+
+
+# -----------------------------------------------------------
+# STEMMING (Simple rule-based stemmer)
+# -----------------------------------------------------------
+
+def simple_stem(word):
+    suffixes = ["ing", "ed", "ly", "es", "s"]
+    for suf in suffixes:
+        if word.endswith(suf):
+            return word[:-len(suf)]
+    return word
+
+stems = [simple_stem(word) for word in tokens]
+
+
+# -----------------------------------------------------------
+# LEMMATIZATION (Manual + rule-based)
+# -----------------------------------------------------------
+
+lemma_dict = {
+    "teaching": "teach",
+    "teachers": "teacher",
+    "students": "student",
+    "learning": "learn",
+    "were": "be",
+    "was": "be",
+    "quickly": "quick",
+    "better": "good",
+    "worse": "bad"
+}
+
+def simple_lemmatizer(word):
+
+    # Rule 1: Irregular forms
+    if word in lemma_dict:
+        return lemma_dict[word]
+
+    # Rule 2: plural nouns
+    if word.endswith("s") and len(word) > 3:
+        return word[:-1]
+
+    # Rule 3: verb endings
+    for suf in ["ing", "ed"]:
+        if word.endswith(suf):
+            return word[:-len(suf)]
+
+    return word
+
+
+lemmas = [simple_lemmatizer(word) for word in tokens]
+
+
+# -----------------------------------------------------------
+# OUTPUT
+# -----------------------------------------------------------
+
+print("TEXT:", text)
+print("\nTOKENS:", tokens)
+print("\nSTEMS:", stems)
+print("\nLEMMAS:", lemmas)

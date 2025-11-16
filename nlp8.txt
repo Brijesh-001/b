@@ -1,0 +1,82 @@
+# -------------------------------------------------------------------
+# RULE-BASED DEPENDENCY PARSING (PURE PYTHON – NO NLTK, NO SPACY)
+# -------------------------------------------------------------------
+
+
+
+# GIVEN SENTENCE
+sentence = "The teacher explains the difficult concepts to the students during the lecture."
+
+# -------------------------------
+# PREPROCESSING
+# -------------------------------
+# Remove punctuation manually
+clean = ""
+for ch in sentence:
+    if ch.isalpha() or ch.isspace():
+        clean += ch
+
+# Lowercase + tokenize
+clean = clean.lower()
+tokens = clean.split()
+
+# -------------------------------
+# SIMPLE POS TAGS
+# -------------------------------
+pos_dict = {
+    "the": "DET",
+    "teacher": "NOUN",
+    "explains": "VERB",
+    "difficult": "ADJ",
+    "concepts": "NOUN",
+    "to": "PREP",
+    "students": "NOUN",
+    "during": "PREP",
+    "lecture": "NOUN"
+}
+
+def pos_tag(word):
+    return pos_dict.get(word, "NOUN")
+
+tagged = [(word, pos_tag(word)) for word in tokens]
+
+# -------------------------------
+# DEPENDENCY RULES (Manually created)
+# -------------------------------
+dependencies = []
+
+# SUBJECT (NOUN before VERB)
+for i in range(len(tagged)):
+    if tagged[i][1] == "NOUN" and "VERB" in [t[1] for t in tagged[i:]]:
+        dependencies.append(("nsubj", tagged[i][0], "explains"))
+        break
+
+# DIRECT OBJECT: after VERB until PREP
+for i in range(len(tagged)):
+    if tagged[i][0] == "explains":
+        j = i + 1
+        # look for article + adjective + noun
+        if tagged[j][1] == "DET" and tagged[j+1][1] == "ADJ" and tagged[j+2][1] == "NOUN":
+            dependencies.append(("dobj", "explains", tagged[j+2][0]))
+        break
+
+# PREPOSITIONAL OBJECTS (to + NOUN)
+for i in range(len(tagged)):
+    if tagged[i][0] == "to" and tagged[i+1][1] == "DET" and tagged[i+2][1] == "NOUN":
+        dependencies.append(("pobj", "to", tagged[i+2][0]))
+
+# PREPOSITIONAL OBJECTS (during + NOUN)
+for i in range(len(tagged)):
+    if tagged[i][0] == "during" and tagged[i+1][1] == "DET" and tagged[i+2][1] == "NOUN":
+        dependencies.append(("pobj", "during", tagged[i+2][0]))
+
+# -------------------------------
+# PRINT RESULTS
+# -------------------------------
+print("\nTOKENS WITH POS TAGS:")
+for t in tagged:
+    print(t)
+
+print("\nDEPENDENCY RELATIONS:")
+for rel in dependencies:
+    print(f"{rel[0]:10} -> ({rel[1]}) → ({rel[2]})")

@@ -1,0 +1,69 @@
+# Reading a .txt file
+txt_path = r"C:\Users\brije\Desktop\nlp.txt"
+
+with open(txt_path, "r", encoding="utf-8") as f:
+    text_data = f.read()
+
+print("----- TEXT FILE CONTENT -----")
+print(text_data)
+
+
+
+pip install python-docx
+
+
+
+
+from docx import Document
+
+docx_path = r"C:\Users\brije\Desktop\nlp.docx"
+doc = Document(docx_path)
+
+word_text = "\n".join([p.text for p in doc.paragraphs])
+
+print("----- WORD FILE CONTENT -----")
+print(word_text)
+
+
+
+
+pip install PyPDF2
+
+
+
+
+import PyPDF2
+
+pdf_path = r"C:\Users\brije\Desktop\nlp.pdf"
+reader = PyPDF2.PdfReader(pdf_path)
+
+pdf_text = ""
+for page in reader.pages:
+    page_text = page.extract_text()
+    if page_text:
+        pdf_text += page_text + "\n"
+
+print("----- PDF FILE CONTENT -----")
+print(pdf_text)
+
+
+
+
+pip install requests beautifulsoup4
+
+
+import requests
+from bs4 import BeautifulSoup
+
+url = "https://books.toscrape.com"
+response = requests.get(url)
+
+soup = BeautifulSoup(response.text, "html.parser")
+
+# Extract text from all paragraphs
+paragraphs = soup.find_all("p")
+
+print("----- WEB SCRAPED TEXT -----")
+for p in paragraphs:
+    print(p.get_text().strip())
+

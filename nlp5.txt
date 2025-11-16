@@ -1,0 +1,82 @@
+# ---------------------------------------------------------
+# RULE-BASED POS TAGGER (NO NLTK, NO SPACY)
+# ---------------------------------------------------------
+
+# GIVEN CORPUS
+corpus = """
+The cat sat on the mat. The dog barked loudly.
+The cat chased the mouse. The dog sat near the car.
+The mouse ran quickly.
+"""
+
+# -------------------------------
+# PREPROCESSING
+# -------------------------------
+# Remove punctuation manually
+clean = ""
+for ch in corpus:
+    if ch.isalpha() or ch.isspace():
+        clean += ch
+
+# Lowercase + tokenize
+clean = clean.lower()
+tokens = clean.split()
+
+# -------------------------------
+# SIMPLE POS DICTIONARY
+# -------------------------------
+pos_dict = {
+    "the": "DET",
+    "cat": "NOUN",
+    "dog": "NOUN",
+    "mouse": "NOUN",
+    "mat": "NOUN",
+    "car": "NOUN",
+
+    "sat": "VERB",
+    "barked": "VERB",
+    "chased": "VERB",
+    "ran": "VERB",
+
+    "on": "PREP",
+    "near": "PREP",
+
+    "loudly": "ADV",
+    "quickly": "ADV"
+}
+
+# -------------------------------
+# RULE-BASED POS TAGGING FUNCTION
+# -------------------------------
+def rule_based_pos(word):
+    # If in dictionary:
+    if word in pos_dict:
+        return pos_dict[word]
+
+    # Rule: words ending with -ly → adverb
+    if word.endswith("ly"):
+        return "ADV"
+
+    # Rule: words ending with -ed → verb (past tense)
+    if word.endswith("ed"):
+        return "VERB"
+
+    # Rule: words ending with -ing → verb (continuous)
+    if word.endswith("ing"):
+        return "VERB"
+
+    # Default rule → noun
+    return "NOUN"
+
+
+# -------------------------------
+# APPLY POS TAGGING
+# -------------------------------
+tagged = [(word, rule_based_pos(word)) for word in tokens]
+
+# -------------------------------
+# OUTPUT
+# -------------------------------
+print("POS TAGGED OUTPUT:\n")
+for word, tag in tagged:
+    print(f"{word:10}--> {tag}")

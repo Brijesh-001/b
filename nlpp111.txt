@@ -1,0 +1,133 @@
+# -------------------------------------------------------------------
+# EXTRACTIVE + ABSTRACTIVE SUMMARIZATION (PURE PYTHON ONLY)
+# -------------------------------------------------------------------
+
+# -------------------------------------------------------------
+# INPUT TEXT
+# -------------------------------------------------------------
+text = """
+Artificial intelligence is transforming industries across the world. 
+Companies are adopting AI to automate tasks, improve decision-making, 
+and provide better customer experiences. However, implementing AI 
+requires skilled professionals, proper data management, and continuous 
+optimization. As AI continues to grow, it will create both opportunities 
+and challenges for businesses.
+"""
+
+# -------------------------------------------------------------
+# 1. PREPROCESSING (no regex, no libraries)
+# -------------------------------------------------------------
+
+def preprocess(text):
+    # Remove consecutive spaces manually
+    cleaned = ""
+    prev_space = False
+    for ch in text:
+        if ch.isspace():
+            if not prev_space:
+                cleaned += " "
+            prev_space = True
+        else:
+            cleaned += ch
+            prev_space = False
+    return cleaned.strip()
+
+clean_text = preprocess(text)
+
+
+# -------------------------------------------------------------
+# 2. SPLIT INTO SENTENCES (manual)
+# -------------------------------------------------------------
+
+def split_sentences(text):
+    sentences = []
+    current = ""
+    for ch in text:
+        if ch in ".!?":
+            if current.strip():
+                sentences.append(current.strip())
+            current = ""
+        else:
+            current += ch
+    if current.strip():
+        sentences.append(current.strip())
+    return sentences
+
+sentences = split_sentences(clean_text)
+
+
+# -------------------------------------------------------------
+# 3. TOKENIZATION (manual)
+# -------------------------------------------------------------
+
+def words(text):
+    cleaned = ""
+    for ch in text:
+        if ch.isalpha() or ch.isspace():
+            cleaned += ch
+    return cleaned.lower().split()
+
+
+# -------------------------------------------------------------
+# 4. EXTRACTIVE SUMMARIZATION
+# -------------------------------------------------------------
+
+# Word-frequency (manual dictionary)
+freq = {}
+all_words = words(clean_text)
+
+for w in all_words:
+    freq[w] = freq.get(w, 0) + 1
+
+# Sentence scoring
+sentence_scores = {}
+for sent in sentences:
+    sent_words = words(sent)
+    score = 0
+    for w in sent_words:
+        score += freq.get(w, 0)
+    sentence_scores[sent] = score
+
+# Pick top 2 highest-scoring sentences
+sorted_sents = sorted(sentence_scores, key=sentence_scores.get, reverse=True)
+extractive_summary = " ".join(sorted_sents[:2])
+
+
+# -------------------------------------------------------------
+# 5. ABSTRACTIVE SUMMARIZATION (Rule-based)
+# -------------------------------------------------------------
+
+def abstractive_summary(text):
+    t = text.lower()
+
+    rules = {
+        "artificial intelligence": "AI",
+        "transforming industries": "changing industries",
+        "companies are adopting ai to automate tasks, improve decision-making, and provide better customer experiences":
+            "businesses use AI to automate work, improve decisions, and enhance customer service",
+        "requires skilled professionals, proper data management, and continuous optimization":
+            "needs expertise, good data, and ongoing improvements",
+        "it will create both opportunities and challenges for businesses":
+            "AI brings benefits and difficulties for companies"
+    }
+
+    # Apply rules
+    for old, new in rules.items():
+        if old in t:
+            t = t.replace(old, new)
+
+    # Re-split into sentences
+    parts = split_sentences(t)
+    return ". ".join(parts[:2]) + "."
+
+abstractive_summary_text = abstractive_summary(clean_text)
+
+
+# -------------------------------------------------------------
+# FINAL OUTPUT
+# -------------------------------------------------------------
+print("--------------- EXTRACTIVE SUMMARY ---------------\n")
+print(extractive_summary)
+
+print("\n--------------- ABSTRACTIVE SUMMARY ---------------\n")
+print(abstractive_summary_text)

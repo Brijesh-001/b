@@ -1,0 +1,61 @@
+# ---------------------------------------------------------
+# BAG OF WORDS (BoW) – PURE PYTHON ONLY (NO LIBRARIES)
+# ---------------------------------------------------------
+
+# GIVEN CORPUS
+corpus = [
+    "The cat sat on the mat.",
+    "The dog barked loudly.",
+    "The cat chased the mouse.",
+    "The dog sat near the car.",
+    "The mouse ran quickly."
+]
+
+# ---------------------------------------------------------
+# PREPROCESSING (Lowercase + Remove Punctuation Manually)
+# ---------------------------------------------------------
+
+def preprocess(sentence):
+    clean = ""
+    for ch in sentence:
+        # keep only letters and spaces
+        if ch.isalpha() or ch.isspace():
+            clean += ch
+    clean = clean.lower()
+    return clean.split()
+
+processed_sentences = [preprocess(sentence) for sentence in corpus]
+
+# ---------------------------------------------------------
+# BUILD VOCABULARY
+# ---------------------------------------------------------
+
+vocab_set = set()
+
+for sentence in processed_sentences:
+    for word in sentence:
+        vocab_set.add(word)
+
+vocab = sorted(list(vocab_set))  # sort for consistent order
+
+# ---------------------------------------------------------
+# CREATE BoW MATRIX
+# ---------------------------------------------------------
+
+matrix = []
+
+for sentence in processed_sentences:
+    row = []
+    for word in vocab:
+        row.append(sentence.count(word))
+    matrix.append(row)
+
+# ---------------------------------------------------------
+# PRINT RESULTS
+# ---------------------------------------------------------
+
+print("VOCABULARY:\n", vocab, "\n")
+
+print("BAG OF WORDS MATRIX:\n")
+for row in matrix:
+    print(row)

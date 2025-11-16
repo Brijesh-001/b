@@ -1,0 +1,97 @@
+# ---------------------------------------------------------
+# SENTENCE COMPLETION WITH WORDS, PHRASES, RANDOM OPTIONS
+# PURE PYTHON (NO NLTK, NO SPACY)
+# ---------------------------------------------------------
+
+import random
+
+# ----------------------------
+# WORD-LEVEL COMPLETION
+# ----------------------------
+word_completion = {
+    "The sky is": ["blue", "clear", "bright", "cloudy"],
+    "He is very": ["happy", "tall", "smart", "kind"],
+    "She likes to": ["dance", "read", "cook", "travel"],
+}
+
+# ----------------------------
+# PHRASE-LEVEL COMPLETION
+# ----------------------------
+phrase_completion = {
+    "Artificial intelligence is": [
+        "changing the world rapidly",
+        "used in many applications",
+        "a combination of algorithms and data",
+        "transforming industries"
+    ],
+    "Machine learning helps": [
+        "detect patterns in data",
+        "improve decision making",
+        "build predictive models",
+        "automate tasks"
+    ]
+}
+
+# ----------------------------
+# MULTIPLE POSSIBILITIES (RANDOM)
+# ----------------------------
+random_prompts = [
+    "Life is",
+    "Technology makes",
+    "The future of education is",
+    "A successful person always"
+]
+
+random_completions = [
+    "beautiful and challenging.",
+    "our lives easier.",
+    "dynamic and evolving.",
+    "keeps learning.",
+    "adapts to change.",
+    "thinks positively."
+]
+
+# ----------------------------
+# FUNCTIONS
+# ----------------------------
+
+def complete_word(sentence_start):
+    """Complete sentence using word-level dictionary."""
+    if sentence_start in word_completion:
+        return sentence_start + " " + random.choice(word_completion[sentence_start])
+    else:
+        return "No word-level completion found."
+
+
+def complete_phrase(sentence_start):
+    """Complete sentence using phrase-level dictionary."""
+    if sentence_start in phrase_completion:
+        return sentence_start + " " + random.choice(phrase_completion[sentence_start])
+    else:
+        return "No phrase-level completion found."
+
+
+def random_sentence():
+    """Generate a random sentence using prompts and completions."""
+    prompt = random.choice(random_prompts)
+    ending = random.choice(random_completions)
+    return prompt + " " + ending
+
+
+# ----------------------------
+# TESTING THE FUNCTIONS
+# ----------------------------
+
+print("WORD COMPLETION EXAMPLES:")
+print(complete_word("The sky is"))
+print(complete_word("He is very"))
+print()
+
+print("PHRASE COMPLETION EXAMPLES:")
+print(complete_phrase("Artificial intelligence is"))
+print(complete_phrase("Machine learning helps"))
+print()
+
+print("RANDOM SENTENCE COMPLETIONS:")
+for _ in range(3):
+    print(random_sentence())

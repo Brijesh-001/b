@@ -1,0 +1,100 @@
+# ---------------------------------------------------------
+# RULE-BASED CHUNKING (NO NLTK, NO SPACY)
+# Extract Noun Phrases and Verb Phrases
+# ---------------------------------------------------------
+
+
+# GIVEN CORPUS
+sentence = "The quick brown fox jumps over the lazy dog."
+
+# -------------------------------
+# PREPROCESSING
+# -------------------------------
+# Remove punctuation manually
+clean = ""
+for ch in sentence:
+    if ch.isalpha() or ch.isspace():
+        clean += ch
+
+# Lowercase + tokenize
+clean = clean.lower()
+tokens = clean.split()
+
+# -------------------------------
+# SIMPLE POS TAG DICTIONARY
+# -------------------------------
+pos_dict = {
+    "the": "DET",
+    "quick": "ADJ",
+    "brown": "ADJ",
+    "lazy": "ADJ",
+    "fox": "NOUN",
+    "dog": "NOUN",
+    "jumps": "VERB",
+    "over": "PREP"
+}
+
+# -------------------------------
+# POS TAGGING FUNCTION
+# -------------------------------
+def pos_tag(word):
+    return pos_dict.get(word, "NOUN")
+
+tagged = [(word, pos_tag(word)) for word in tokens]
+
+print("POS TAGS:")
+print(tagged, "\n")
+
+# -------------------------------
+# RULE-BASED CHUNKING
+# NP Pattern: (DET) + (ADJ)* + NOUN
+# VP Pattern: VERB + (ADV/ADJ/NOUN)*
+# -------------------------------
+
+noun_phrases = []
+verb_phrases = []
+
+i = 0
+while i < len(tagged):
+    word, tag = tagged[i]
+
+    # NP RULE
+    if tag == "DET":
+        np = [word]
+
+        j = i + 1
+        # Collect adjectives
+        while j < len(tagged) and tagged[j][1] == "ADJ":
+            np.append(tagged[j][0])
+            j += 1
+
+        # Final noun
+        if j < len(tagged) and tagged[j][1] == "NOUN":
+            np.append(tagged[j][0])
+            noun_phrases.append(" ".join(np))
+            i = j
+        else:
+            i += 1
+
+    # VP RULE
+    elif tag == "VERB":
+        vp = [word]
+        j = i + 1
+        while j < len(tagged) and tagged[j][1] in ["ADV", "ADJ", "NOUN"]:
+            vp.append(tagged[j][0])
+            j += 1
+        verb_phrases.append(" ".join(vp))
+        i = j
+    else:
+        i += 1
+
+# -------------------------------
+# OUTPUT
+# -------------------------------
+print("NOUN PHRASES (NP):")
+for np in noun_phrases:
+    print(" -", np)
+
+print("\nVERB PHRASES (VP):")
+for vp in verb_phrases:
+    print(" -", vp)

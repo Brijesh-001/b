@@ -1,0 +1,43 @@
+# ------------------------------------------------------------
+# IDENTIFY PRONOUNS & CONJUNCTIONS WITHOUT ANY LIBRARIES
+# ------------------------------------------------------------
+
+# Input sentence
+sentence = "Although the team trained hard, they lost the match because they were exhausted."
+
+# ----------------------------
+# PREPROCESSING (manual)
+# ----------------------------
+
+clean = ""
+for ch in sentence:
+    # keep only letters and spaces
+    if ch.isalpha() or ch.isspace():
+        clean += ch
+
+clean = clean.lower()
+tokens = clean.split()
+
+# ----------------------------
+# Pronouns & Conjunctions List
+# ----------------------------
+
+pronouns = ["he", "she", "it", "they", "them", "we", "i", "you", "us"]
+conjunctions = ["and", "but", "or", "because", "although", "while", "though", "yet"]
+
+# ----------------------------
+# IDENTIFICATION
+# ----------------------------
+
+found_pronouns = [word for word in tokens if word in pronouns]
+found_conjunctions = [word for word in tokens if word in conjunctions]
+
+# ----------------------------
+# OUTPUT
+# ----------------------------
+
+print("Original Sentence:")
+print(sentence, "\n")
+
+print("Pronouns Found:", found_pronouns)
+print("Conjunctions Found:", found_conjunctions)

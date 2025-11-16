@@ -1,0 +1,98 @@
+# -------------------------------------------------------------
+# SENTIMENT CLASSIFICATION USING PURE ML (NO NLP PACKAGES)
+# -------------------------------------------------------------
+
+import re
+import numpy as np
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.model_selection import train_test_split
+
+
+# -------------------------------------------------------------
+# MANUAL PREPROCESSING (NO NLP)
+# -------------------------------------------------------------
+def preprocess(text):
+    text = text.lower()
+    text = re.sub(r"[^a-z\s]", "", text)
+    return text.split()  # simple tokenization
+
+
+# -------------------------------------------------------------
+# SAMPLE TRAINING DATA
+# -------------------------------------------------------------
+texts = [
+    "I love this product",
+    "This is amazing and fantastic",
+    "I am very happy with the service",
+    "This is the worst thing ever",
+    "I hate this so much",
+    "Very bad experience",
+    "The movie was great",
+    "I dislike this item",
+    "The service was terrible",
+    "Absolutely wonderful experience"
+]
+
+labels = [
+    1, 1, 1,   # Positive = 1
+    0, 0, 0,   # Negative = 0
+    1, 0, 0, 1
+]
+
+
+# -------------------------------------------------------------
+# BUILD VOCABULARY (MANUAL)
+# -------------------------------------------------------------
+vocab = set()
+for text in texts:
+    vocab.update(preprocess(text))
+
+vocab = sorted(list(vocab))
+vocab_index = {word: i for i, word in enumerate(vocab)}
+
+
+# -------------------------------------------------------------
+# CONVERT TEXT TO BoW VECTOR (MANUAL)
+# -------------------------------------------------------------
+def text_to_vector(text):
+    tokens = preprocess(text)
+    vector = np.zeros(len(vocab))
+    for token in tokens:
+        if token in vocab_index:
+            vector[vocab_index[token]] += 1
+    return vector
+
+
+# Create feature matrix
+X = np.array([text_to_vector(t) for t in texts])
+y = np.array(labels)
+
+
+# -------------------------------------------------------------
+# TRAIN TEST SPLIT + ML MODEL
+# -------------------------------------------------------------
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+model = MultinomialNB()
+model.fit(X_train, y_train)
+
+print("Model Accuracy:", model.score(X_test, y_test))
+
+
+# -------------------------------------------------------------
+# PREDICTION FUNCTION
+# -------------------------------------------------------------
+def predict_sentiment(text):
+    v = text_to_vector(text)
+    pred = model.predict([v])[0]
+    return "Positive 😊" if pred == 1 else "Negative 😠"
+
+
+# -------------------------------------------------------------
+# TESTING
+# -------------------------------------------------------------
+print("\nSENTIMENT TESTS:")
+print("Sentence: 'I really love this!'", "->", predict_sentiment("I really love this"))
+print("Sentence: 'This is terrible'", "->", predict_sentiment("This is terrible"))
+print("Sentence: 'The experience was great'", "->", predict_sentiment("The experience was great"))
+print("Sentence: 'I hate the product'", "->", predict_sentiment("I hate the product"))
